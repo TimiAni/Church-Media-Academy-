@@ -4,8 +4,7 @@ import {
   Lock,
   Mail,
   ArrowRight,
-  AlertCircle,
-  KeyRound
+  AlertCircle
 } from 'lucide-react';
 import { useCMS } from '../../lib/cmsContext';
 
@@ -14,7 +13,7 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ navigate }) => {
-  const { loginAdmin, loginDemoAdmin, isSupabaseActive } = useCMS();
+  const { loginAdmin, isSupabaseActive } = useCMS();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,14 +36,8 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ navigate }) => {
       navigate('/admin/dashboard');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      setErrorMessage(result.error || 'Authentication failed. Please verify your credentials.');
+      setErrorMessage(result.error || 'Authentication failed. Please verify your Supabase credentials.');
     }
-  };
-
-  const handleDemoLogin = () => {
-    loginDemoAdmin();
-    navigate('/admin/dashboard');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -59,7 +52,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ navigate }) => {
             Administrator Portal
           </h2>
           <p className="text-xs text-slate-500">
-            Sign in to manage Church Media Academy content and enquiries.
+            Sign in with your Supabase account to manage Church Media Academy.
           </p>
         </div>
 
@@ -98,7 +91,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ navigate }) => {
               <input
                 type="email"
                 required
-                placeholder="anifowosetimileyinemmanuel@gmail.com"
+                placeholder="your-admin@supabase.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
@@ -129,7 +122,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ navigate }) => {
             className="w-full py-2.5 text-xs font-bold rounded-lg bg-[#064E3B] hover:bg-[#047857] text-white shadow-sm transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60"
           >
             {loading ? (
-              <span>Authenticating...</span>
+              <span>Authenticating with Supabase...</span>
             ) : (
               <>
                 <span>Sign In to Dashboard</span>
@@ -139,23 +132,8 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ navigate }) => {
           </button>
         </form>
 
-        {/* Quick Demo Mode for Preview Testing */}
-        <div className="pt-3 border-t border-slate-200 text-center space-y-2">
-          <p className="text-[11px] text-slate-500">
-            Evaluating the dashboard in sandbox mode?
-          </p>
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            className="w-full py-2 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center justify-center gap-1.5"
-          >
-            <KeyRound className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Instant Demo Admin Sign-In (Timi Ani)</span>
-          </button>
-        </div>
-
-        <div className="text-[10px] text-slate-400 text-center leading-relaxed">
-          Public registration is disabled. Administrator credentials are managed securely.
+        <div className="text-[10px] text-slate-400 text-center leading-relaxed pt-2 border-t border-slate-100">
+          Public registration is disabled. Administrator users are managed in the Supabase Dashboard under Authentication &gt; Users.
         </div>
       </div>
     </div>

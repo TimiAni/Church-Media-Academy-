@@ -27,9 +27,12 @@ import {
   Music,
   Mic,
   Play,
-  Radio
+  Radio,
+  Activity,
+  RefreshCw
 } from 'lucide-react';
 import { useCMS } from '../../lib/cmsContext';
+import { supabase } from '../../lib/supabase';
 import { EnquiryStatus, GalleryAlbum, TrainingProgram, ServiceItem, PodcastEpisode } from '../../types';
 
 interface AdminDashboardProps {
@@ -374,6 +377,49 @@ CREATE POLICY "Admin manage enquiries" ON public.enquiries FOR ALL USING (auth.r
     navigator.clipboard.writeText(sql);
     setCopiedSQL(true);
     setTimeout(() => setCopiedSQL(false), 2500);
+  };
+
+  const [testStatus, setTestStatus] = useState<{
+    testing: boolean;
+    success: boolean | null;
+    message: string;
+    latency?: number;
+  }>({ testing: false, success: null, message: '' });
+
+  const runConnectionTest = async () => {
+    setTestStatus({ testing: true, success: null, message: 'Pinging Supabase cloud endpoint...' });
+    const start = performance.now();
+    try {
+      if (!supabase) {
+        throw new Error('Supabase client is not configured.');
+      }
+      const { error } = await supabase.auth.getSession();
+      const latency = Math.round(performance.now() - start);
+      if (error) {
+        setTestStatus({
+          testing: false,
+          success: false,
+          message: `Supabase responded with error: ${error.message}`,
+          latency
+        });
+      } else {
+        setTestStatus({
+          testing: false,
+          success: true,
+          message: `Live Supabase connection confirmed! Auth and API Gateway responded in ${latency}ms.`,
+          latency
+        });
+      }
+    } catch (err: unknown) {
+      const latency = Math.round(performance.now() - start);
+      const msg = err instanceof Error ? err.message : 'Failed to reach Supabase';
+      setTestStatus({
+        testing: false,
+        success: false,
+        message: msg,
+        latency
+      });
+    }
   };
 
   return (
@@ -2416,27 +2462,62 @@ CREATE POLICY "Admin manage enquiries" ON public.enquiries FOR ALL USING (auth.r
               <div
                 className={`p-6 rounded-xl border ${
                   isSupabaseActive
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950'
                     : 'bg-amber-50 border-amber-200 text-amber-900'
-                } space-y-2`}
+                } space-y-4`}
               >
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`w-3 h-3 rounded-full ${
-                      isSupabaseActive ? 'bg-emerald-500' : 'bg-amber-500'
-                    }`}
-                  />
-                  <h3 className="font-bold text-base">
-                    {isSupabaseActive
-                      ? 'Live Supabase Cloud Connected'
-                      : 'Running in Local Storage Sandbox Mode'}
-                  </h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className={`w-3.5 h-3.5 rounded-full ${
+                        isSupabaseActive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                      }`}
+                    />
+                    <div>
+                      <h3 className="font-extrabold text-base text-[#064E3B]">
+                        {isSupabaseActive
+                          ? 'Supabase Cloud Connected & Ready'
+                          : 'Running in Local Storage Sandbox Mode'}
+                      </h3>
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        Connected to project <span className="font-mono text-emerald-800 font-semibold">svxobflhnvaoyityxvpr</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={runConnectionTest}
+                    disabled={testStatus.testing}
+                    className="self-start sm:self-auto px-3.5 py-2 text-xs font-bold rounded-lg bg-[#064E3B] text-white hover:bg-emerald-800 flex items-center gap-2 shadow-sm transition-all disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${testStatus.testing ? 'animate-spin' : ''}`} />
+                    <span>{testStatus.testing ? 'Testing Endpoint...' : 'Test Connection'}</span>
+                  </button>
                 </div>
-                <p className="text-xs leading-relaxed">
-                  {isSupabaseActive
-                    ? 'Your application is communicating directly with your Supabase PostgreSQL database, Storage bucket, and Auth service.'
-                    : 'The website and admin dashboard are fully functional right now using high-performance local persistence. When you are ready to link your production Supabase project, follow the simple 3-step guide below.'}
-                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-white/80 p-3.5 rounded-lg border border-emerald-200/60 font-mono">
+                  <div>
+                    <span className="text-slate-500 text-[11px] block font-sans font-semibold">Project Endpoint</span>
+                    <span className="text-[#064E3B] font-semibold break-all">https://svxobflhnvaoyityxvpr.supabase.co</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 text-[11px] block font-sans font-semibold">Publishable Key</span>
+                    <span className="text-emerald-700 font-semibold break-all">sb_publishable_Bpfjrhret1...-jPJ</span>
+                  </div>
+                </div>
+
+                {testStatus.message && (
+                  <div
+                    className={`p-3 rounded-lg text-xs font-semibold flex items-center gap-2 ${
+                      testStatus.success
+                        ? 'bg-emerald-100/90 text-emerald-900 border border-emerald-300'
+                        : 'bg-red-50 text-red-900 border border-red-200'
+                    }`}
+                  >
+                    <Activity className="w-4 h-4 shrink-0" />
+                    <span>{testStatus.message}</span>
+                  </div>
+                )}
               </div>
 
               {/* 3 Step Integration Guide */}

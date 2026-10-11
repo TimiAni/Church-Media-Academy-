@@ -464,7 +464,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     return {
       success: false,
-      error: 'Invalid administrator credentials. (Tip: In demo mode, use timi@churchmediaacademy.org or click Quick Demo Sign-In)'
+      error: isSupabaseConfigured
+        ? 'Invalid Supabase administrator credentials. Please check your user email and password in Supabase.'
+        : 'Invalid credentials. Please verify your administrator email and password.'
     };
   };
 

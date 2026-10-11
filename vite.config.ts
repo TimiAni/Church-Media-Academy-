@@ -11,6 +11,15 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
+    define: {
+      'process.env.NEXT_PUBLIC_SUPABASE_URL': JSON.stringify(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://svxobflhnvaoyityxvpr.supabase.co'
+      ),
+      'process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_Bpfjrhret1Xcfvf5_8AbQA_hK1u-jPJ'
+      ),
+    },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify—file watching is disabled to prevent flickering during agent edits.
