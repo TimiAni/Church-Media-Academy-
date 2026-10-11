@@ -1,0 +1,6 @@
+{
+  "name": "Church Media Academy",
+  "description": "Equipping the Church. Empowering the Media. Practical church media training, creative production, and digital skills by Timi Ani.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
